@@ -9,11 +9,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const puppeteer = require("puppeteer");
+const path = require("path");
 let window;
 const DEBUG = false;
 class GGBPlotter {
     constructor(id, page, releasedEmitter) {
-        this.id = id || Math.random().toString(32).substring(2);
+        if (id) {
+            if (typeof (id) == "number") {
+                this.id = id;
+            }
+            else {
+                this.poolOpts = Object.assign({ plotters: 3, ggb: "local" }, id);
+                this.id = Math.random().toString(32).substring(2);
+            }
+        }
+        else {
+            this.poolOpts = { plotters: 3, ggb: "local" };
+            this.id = Math.random().toString(32).substring(2);
+        }
         this.pagePromise = this.createPage(page);
         this.releasedEmitter = releasedEmitter;
     }
@@ -31,7 +44,15 @@ class GGBPlotter {
                 };
                 this.browser = yield puppeteer.launch(opts);
                 const newPage = yield this.browser.newPage();
-                yield newPage.goto("https://www.geogebra.org/classic");
+                let url;
+                if (this.poolOpts.ggb === "local") {
+                    const dir = path.resolve("../geogebra-math-apps-bundle/Geogebra/HTML5/5.0/GeoGebra.html");
+                    url = "file://" + dir;
+                }
+                else {
+                    url = "https://www.geogebra.org/classic";
+                }
+                yield newPage.goto(url);
                 yield newPage.waitForFunction("window.ggbApplet!=null");
                 yield newPage.evaluate('window.ggbApplet.evalCommand(\'SetPerspective("G")\\nShowGrid(true)\')');
                 return newPage;

@@ -1,10 +1,8 @@
 const GGBPool = require("../dist/GGBPool").GGBPool;
 const fs = require("fs");
 
-// How many plotters must contains the pool
-const numPlotters = 3;
-
-const pool = new GGBPool(numPlotters);
+// You can test the startup time by changing ggb to local or remote
+const pool = new GGBPool({ggb: "local", plotters: 3});
 
 (async () => {
     const t0 = new Date();

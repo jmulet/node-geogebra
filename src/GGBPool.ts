@@ -2,6 +2,9 @@ import * as puppeteer from 'puppeteer';
 import { EventEmitter } from 'events';
 import { GGBPlotter } from './GGBPlotter';
 import { PriorityQueue } from './PriorityQueue';
+import { GGBOptions } from './GGBOptions';
+import * as path from 'path';
+
 let window: any;
 const DEBUG = false;
 
@@ -14,10 +17,10 @@ export class GGBPool {
     isCreated: boolean;
 
     availablePages: puppeteer.Page[];
-    numWorkers: number;
+    opts: GGBOptions;
 
-    constructor(numWorkers?: number) {
-        this.numWorkers = numWorkers ||  1;
+    constructor(options?: GGBOptions) {
+        this.opts = {ggb: "local", plotters: 3, ...options};
         this.releasedEmitter = new EventEmitter();
         this.priorityCue = new PriorityQueue(this.releasedEmitter)
         // Return released workers to the pool
@@ -44,16 +47,16 @@ export class GGBPool {
 
         this.browser = await puppeteer.launch(opts);
 
-        const promises = new Array<Promise<puppeteer.BrowserContext>>(this.numWorkers);
-        for (var i = 0; i < this.numWorkers; i++) {
+        const promises = new Array<Promise<puppeteer.BrowserContext>>(this.opts.plotters);
+        for (var i = 0; i < this.opts.plotters; i++) {
             promises[i] = this.browser.createIncognitoBrowserContext();
         }
         const browserContexts = await Promise.all(promises);
         DEBUG && console.log("browsers created");
 
 
-        const promises2 = new Array<Promise<puppeteer.Page>>(this.numWorkers);
-        for (var i = 0; i < this.numWorkers; i++) {
+        const promises2 = new Array<Promise<puppeteer.Page>>(this.opts.plotters);
+        for (var i = 0; i < this.opts.plotters; i++) {
             promises2[i] = browserContexts[i].newPage();
         }
         // Wait for windows contexts
@@ -61,24 +64,31 @@ export class GGBPool {
         DEBUG && console.log("pages have been created");
 
         // Load empty geogebra templates
-        let promises3 = new Array(this.numWorkers);
-        for (var i = 0; i < this.numWorkers; i++) {
-            promises3[i] = this.availablePages[i].goto("https://www.geogebra.org/classic");
+        let url;
+        if( this.opts.ggb==="local") { 
+            const dir = path.resolve("../geogebra-math-apps-bundle/Geogebra/HTML5/5.0/GeoGebra.html");
+            url = "file://" + dir;
+        } else {
+            url = "https://www.geogebra.org/classic";
+        }
+        let promises3 = new Array(this.opts.plotters);
+        for (var i = 0; i < this.opts.plotters; i++) {
+            promises3[i] = this.availablePages[i].goto(url);
         }
         await Promise.all(promises3);
         DEBUG && console.log("https://www.geogebra.org/classic have loaded in all pages");
 
         // Wait for ... ggbApplet injected    
-        promises3 = new Array(this.numWorkers);
-        for (var i = 0; i < this.numWorkers; i++) {
+        promises3 = new Array(this.opts.plotters);
+        for (var i = 0; i < this.opts.plotters; i++) {
             promises3[i] = this.availablePages[i].waitForFunction("window.ggbApplet!=null");
         }
         await Promise.all(promises3);
         DEBUG && console.log("ggbApplet is ready in all pages");
 
 
-        promises3 = new Array(this.numWorkers);
-        for (var i = 0; i < this.numWorkers; i++) {
+        promises3 = new Array(this.opts.plotters);
+        for (var i = 0; i < this.opts.plotters; i++) {
             promises3[i] = this.availablePages[i].evaluate('window.ggbApplet.evalCommand(\'SetPerspective("G")\\nShowGrid(true)\')');
         }
         await Promise.all(promises3);
@@ -115,7 +125,7 @@ export class GGBPool {
 
     async release() {
         const promises = [];
-        for (var i = 0; i < this.numWorkers; i++) {
+        for (var i = 0; i < this.opts.plotters; i++) {
             promises.push(this.availablePages[i].close());
         }
         await Promise.all(promises);

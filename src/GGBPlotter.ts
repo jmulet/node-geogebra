@@ -1,16 +1,30 @@
 import * as puppeteer from 'puppeteer';
 import { EventEmitter } from 'events';
+import { GGBOptions } from './GGBOptions';
+import * as path from 'path';
+
 let window: any;
 const DEBUG = false;
 
 export class GGBPlotter {
     releasedEmitter: EventEmitter;
     id: string | number;
+    poolOpts: GGBOptions;
     pagePromise: Promise<puppeteer.Page>;
     browser: puppeteer.Browser;
 
-    constructor(id?: number, page?: puppeteer.Page, releasedEmitter?: EventEmitter) {
-        this.id = id || Math.random().toString(32).substring(2);
+    constructor(id?: number | GGBOptions, page?: puppeteer.Page, releasedEmitter?: EventEmitter) {
+        if (id) {
+            if (typeof(id) == "number") {  
+                this.id = id;
+            } else {                
+                this.poolOpts = {plotters: 3 , ggb: "local", ...id};
+                this.id = Math.random().toString(32).substring(2);
+            }
+        } else {
+            this.poolOpts = {plotters: 3 , ggb: "local"};
+            this.id = Math.random().toString(32).substring(2);
+        }
         this.pagePromise = this.createPage(page);
         this.releasedEmitter = releasedEmitter;
     }
@@ -27,7 +41,14 @@ export class GGBPlotter {
     
             this.browser = await puppeteer.launch(opts);
             const newPage = await this.browser.newPage();
-            await newPage.goto("https://www.geogebra.org/classic");
+            let url;
+            if( this.poolOpts.ggb==="local") { 
+                const dir = path.resolve("../geogebra-math-apps-bundle/Geogebra/HTML5/5.0/GeoGebra.html");
+                url = "file://" + dir;
+            } else {
+                url = "https://www.geogebra.org/classic";
+            }
+            await newPage.goto(url);
             await newPage.waitForFunction("window.ggbApplet!=null");
             await newPage.evaluate('window.ggbApplet.evalCommand(\'SetPerspective("G")\\nShowGrid(true)\')');
             
