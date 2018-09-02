@@ -1,0 +1,32 @@
+{
+  "name": "node-ggb",
+  "version": "1.0.0",
+  "description": "Generate graphics with geogebra from nodejs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jmulet/node-geogebra.git"
+  },
+  "keywords": [
+    "geogebra",
+    "nodejs",
+    "chromium",
+    "headless"
+  ],
+  "author": "Josep Mulet",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jmulet/node-geogebra/issues"
+  },
+  "homepage": "https://github.com/jmulet/node-geogebra#readme",
+  "dependencies": {
+    "puppeteer": "^1.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^10.9.4",
+    "@types/puppeteer": "^1.6.1"
+  }
+}
