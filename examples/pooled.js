@@ -16,7 +16,7 @@ const pool = new GGBPool({ggb: "local", plotters: 3});
     async function doFunGraph(task, axisScales, dimensions, ext) { 
         // Every plotting task takes a plotter from the pool
         const plotter = await pool.getGGBPlotter();
-        console.log(task + ":: has taken form the pool, plotter id=" + plotter.id);
+        console.log(task + ":: has taken from the pool, plotter id=" + plotter.id);
         // This is the desired image size in pixels
         const w = dimensions[0];
         const h = dimensions[1];  
@@ -30,7 +30,7 @@ const pool = new GGBPool({ggb: "local", plotters: 3});
             "SetLineStyle(t, 1)",
             "ZoomIn("+ axisScales.join(",")+")"];
 
-        await plotter.evalGGBScript(w, h, ggbScript);
+        await plotter.evalGGBScript(ggbScript, w, h);
         console.log(task + ":: has been evaluated in plotter id=" + plotter.id);
         const fileContents = await plotter.export(ext);
         console.log(task + ":: pdf has been exported in plotter id= " + plotter.id);

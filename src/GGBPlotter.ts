@@ -41,13 +41,13 @@ export class GGBPlotter {
     
             this.browser = await puppeteer.launch(opts);
             const newPage = await this.browser.newPage();
-            let url;
+            let url; 
             if( this.poolOpts.ggb==="local") { 
-                const dir = path.resolve("../geogebra-math-apps-bundle/Geogebra/HTML5/5.0/GeoGebra.html");
+                const dir = path.resolve(__dirname, "../geogebra-math-apps-bundle/Geogebra/HTML5/5.0/GeoGebra.html");
                 url = "file://" + dir;
             } else {
                 url = "https://www.geogebra.org/classic";
-            }
+            } 
             await newPage.goto(url);
             await newPage.waitForFunction("window.ggbApplet!=null");
             await newPage.evaluate('window.ggbApplet.evalCommand(\'SetPerspective("G")\\nShowGrid(true)\')');
@@ -58,11 +58,15 @@ export class GGBPlotter {
     async ready() {
         return this.pagePromise;
     }
-    async evalGGBScript(width: number, height: number, ggbScript: string[]) {
+    async evalGGBScript(ggbScript: string[], width?: number, height?: number) {
         const page = await this.pagePromise;
         // 53 px accounts for the toolbar which cannot be removed in geogebra app mode
-        await page.setViewport({ width: width, height: height + 53 });
-        await page.evaluate((x) => window.ggbApplet.evalCommand(x), ggbScript.join("\n"));
+      
+        await page.setViewport({ width: width || 600, height: (height || 400) + 53 });
+      
+        if (ggbScript && ggbScript.length) {
+            await page.evaluate((x) => window.ggbApplet.evalCommand(x), ggbScript.join("\n"));
+        }
     }
     async exportPNG(alpha?: boolean, dpi?: number): Promise<Buffer> {
         const pdf64 = await this.exportPNG64(alpha, dpi);

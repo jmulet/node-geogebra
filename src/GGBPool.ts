@@ -2,7 +2,7 @@ import * as puppeteer from 'puppeteer';
 import { EventEmitter } from 'events';
 import { GGBPlotter } from './GGBPlotter';
 import { PriorityQueue } from './PriorityQueue';
-import { GGBOptions } from './GGBOptions';
+import { GGBOptions } from './GGBOptions'; 
 import * as path from 'path';
 
 let window: any;
@@ -28,7 +28,7 @@ export class GGBPool {
             const indx = this.usedWorkers.indexOf(worker);
             this.usedWorkers.splice(indx, 1);
             this.availableWorkers.push(worker);
-        });
+        }); 
     }
 
     async ready(): Promise<GGBPool> {
@@ -64,13 +64,13 @@ export class GGBPool {
         DEBUG && console.log("pages have been created");
 
         // Load empty geogebra templates
-        let url;
+        let url; 
         if( this.opts.ggb==="local") { 
-            const dir = path.resolve("../geogebra-math-apps-bundle/Geogebra/HTML5/5.0/GeoGebra.html");
+            const dir = path.resolve(__dirname, "../geogebra-math-apps-bundle/Geogebra/HTML5/5.0/GeoGebra.html");
             url = "file://" + dir;
         } else {
             url = "https://www.geogebra.org/classic";
-        }
+        } 
         let promises3 = new Array(this.opts.plotters);
         for (var i = 0; i < this.opts.plotters; i++) {
             promises3[i] = this.availablePages[i].goto(url);

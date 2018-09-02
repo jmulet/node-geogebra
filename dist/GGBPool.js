@@ -58,7 +58,7 @@ class GGBPool {
             // Load empty geogebra templates
             let url;
             if (this.opts.ggb === "local") {
-                const dir = path.resolve("../geogebra-math-apps-bundle/Geogebra/HTML5/5.0/GeoGebra.html");
+                const dir = path.resolve(__dirname, "../geogebra-math-apps-bundle/Geogebra/HTML5/5.0/GeoGebra.html");
                 url = "file://" + dir;
             }
             else {

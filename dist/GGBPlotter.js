@@ -46,7 +46,7 @@ class GGBPlotter {
                 const newPage = yield this.browser.newPage();
                 let url;
                 if (this.poolOpts.ggb === "local") {
-                    const dir = path.resolve("../geogebra-math-apps-bundle/Geogebra/HTML5/5.0/GeoGebra.html");
+                    const dir = path.resolve(__dirname, "../geogebra-math-apps-bundle/Geogebra/HTML5/5.0/GeoGebra.html");
                     url = "file://" + dir;
                 }
                 else {
@@ -64,12 +64,14 @@ class GGBPlotter {
             return this.pagePromise;
         });
     }
-    evalGGBScript(width, height, ggbScript) {
+    evalGGBScript(ggbScript, width, height) {
         return __awaiter(this, void 0, void 0, function* () {
             const page = yield this.pagePromise;
             // 53 px accounts for the toolbar which cannot be removed in geogebra app mode
-            yield page.setViewport({ width: width, height: height + 53 });
-            yield page.evaluate((x) => window.ggbApplet.evalCommand(x), ggbScript.join("\n"));
+            yield page.setViewport({ width: width || 600, height: (height || 400) + 53 });
+            if (ggbScript && ggbScript.length) {
+                yield page.evaluate((x) => window.ggbApplet.evalCommand(x), ggbScript.join("\n"));
+            }
         });
     }
     exportPNG(alpha, dpi) {

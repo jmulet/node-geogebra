@@ -64,7 +64,7 @@ await pool.ready();
     - async **ready()**: Promise<Page>. When resolved, the plotter is ready to use
     - async **reset()**. Erases the plotter.
     - async **release()**. Erases and returns the plotter to the pool
-    - async **evalGGBScript(width: number, height: number, script: string[])**. Sets the dimensions of the graph. _script_ is an array that contains all the instructions required to generate your graph. The language used in these commands must be [GGBScript](https://wiki.geogebra.org/en/Scripting_Commands). Internally, this method passes the GGBScript to the window.ggbApplet.evalCommand function.
+    - async **evalGGBScript(script: string[], width: number?, height?: number )**. Sets the dimensions of the graph. _script_ is an array that contains all the instructions required to generate your graph. The language used in these commands must be [GGBScript](https://wiki.geogebra.org/en/Scripting_Commands). Internally, this method passes the GGBScript to the window.ggbApplet.evalCommand function.
     - async **exec(property, args: string[])**: any. Executes the property on the window.ggbApplet object. For instance plotter.exec("reset") would do the same job as plotter.reset()
     - async **export(format: string)**: string or buffer. format can be: png, pdf, svg, ggb. It returns a buffer or a string depending on the format.
     - async **export64(format: string)**: string. format can be: png, pdf, svg, ggb. It returns a string containing a base64 representation of the buffer.
@@ -84,7 +84,7 @@ Example using a set of pooled plotters
    const ggbScript = [
        "A=(2,5)", "f=cos(x)", "t=Tangent(f,A)"
    ];
-   await plotter.evalGGBScript(600, 400, ggbScript);
+   await plotter.evalGGBScript(ggbScript, 600, 400);
    const svg64 = await plotter.export64("svg");
    console.log(svg64)
    await plotter.release(); 
@@ -98,7 +98,7 @@ Example without using GGBPool
    const ggbScript = [
        "A=(2,5)", "f=cos(x)", "t=Tangent(f,A)"
    ];
-   await plotter.evalGGBScript(600, 400, ggbScript);
+   await plotter.evalGGBScript(ggbScript);
    const svg64 = await plotter.export64("svg");
    console.log(svg64)
    await plotter.release(); 

@@ -27,7 +27,7 @@ const plotter = new GGBPlotter({ggb: "remote"});
             "SetLineStyle(t, 1)",
             "ZoomIn("+ axisScales.join(",")+")"];
 
-        await plotter.evalGGBScript(w, h, ggbScript);
+        await plotter.evalGGBScript(ggbScript, w, h);
         console.log(task + ":: has been evaluated in plotter id=" + plotter.id);
         const fileContents = await plotter.export(ext);
         console.log(task + ":: pdf has been exported in plotter id= " + plotter.id);
