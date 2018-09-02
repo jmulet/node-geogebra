@@ -75,7 +75,8 @@ export class GGBPlotter {
     }
     async exportPNG64(alpha?: boolean, dpi?: number): Promise<string> {
         const page = await this.pagePromise;
-        return page.evaluate((alpha, dpi) => window.ggbApplet.getPNGBase64(1, alpha, dpi || 300), alpha, dpi);
+        const out = page.evaluate((alpha, dpi) => window.ggbApplet.getPNGBase64(1, alpha, dpi || 300), alpha, dpi);
+        return "data:image/png;base64," + out;
     }
     async exportSVG(): Promise<string> {
         const page = await this.pagePromise;
