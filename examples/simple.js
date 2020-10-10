@@ -2,7 +2,8 @@ const GGBPlotter = require("../dist/GGBPlotter").GGBPlotter;
 const fs = require("fs");
 
 // You can test the startup time by changing ggb to local or remote
-const plotter = new GGBPlotter({ggb: "remote"});
+// Please note that "remote" option is not working at the moment :-(
+const plotter = new GGBPlotter({ggb: "local"});
 
 (async () => {
     const t0 = new Date();

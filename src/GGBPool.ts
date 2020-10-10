@@ -73,7 +73,7 @@ export class GGBPool {
         } 
         let promises3 = new Array(this.opts.plotters);
         for (var i = 0; i < this.opts.plotters; i++) {
-            promises3[i] = this.availablePages[i].goto(url);
+            promises3[i] = this.availablePages[i].goto(url, {waitUntil: 'networkidle2'});
         }
         await Promise.all(promises3);
         DEBUG && console.log("https://www.geogebra.org/classic have loaded in all pages");

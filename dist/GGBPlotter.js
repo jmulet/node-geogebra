@@ -1,17 +1,24 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.GGBPlotter = void 0;
 const puppeteer = require("puppeteer");
 const path = require("path");
 let window;
 const DEBUG = false;
+function sleep(ms) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
+}
 class GGBPlotter {
     constructor(id, page, releasedEmitter) {
         if (id) {
@@ -52,9 +59,12 @@ class GGBPlotter {
                 else {
                     url = "https://www.geogebra.org/classic";
                 }
-                yield newPage.goto(url);
+                yield newPage.goto(url, { waitUntil: 'networkidle2' });
+                DEBUG && console.log(url + " has been loaded");
                 yield newPage.waitForFunction("window.ggbApplet!=null");
+                DEBUG && console.log("ggbApplet is ready");
                 yield newPage.evaluate('window.ggbApplet.evalCommand(\'SetPerspective("G")\\nShowGrid(true)\')');
+                DEBUG && console.log("SetPerspective->G, showGrid->true");
                 return newPage;
             }
         });
@@ -84,7 +94,8 @@ class GGBPlotter {
     exportPNG64(alpha, dpi) {
         return __awaiter(this, void 0, void 0, function* () {
             const page = yield this.pagePromise;
-            return page.evaluate((alpha, dpi) => window.ggbApplet.getPNGBase64(1, alpha, dpi || 300), alpha, dpi);
+            const out = yield page.evaluate((alpha, dpi) => window.ggbApplet.getPNGBase64(1, alpha, dpi || 300), alpha, dpi);
+            return "data:image/png;base64," + out;
         });
     }
     exportSVG() {

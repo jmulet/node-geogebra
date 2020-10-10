@@ -2,10 +2,21 @@
 
 Run a [geogebra](https://www.geogebra.org) script from nodejs and export your work to the desired format: _pdf, svg, png_ and _ggb_.
 
+## IMPORTANT NOTICE
+
+Due to a change in the API of https://www.geogebra.org/classic, only the ggb: "local" option passed to GGBPlotter({ggb: "local"}) works.
+
+
 ## Under the hood
 
 It runs [Geogebra Classic App](https://www.geogebra.org/classic) through a headless chromium browser using the [puppeteer](https://github.com/GoogleChrome/puppeteer) package. This package provides an interface to programmatically utilize Geogebra classic app from nodejs.
 
+
+## Clone
+
+`git clone https://github.com/jmulet/node-geogebra.git`
+`cd node-geogebra`
+`npm install `
 
 ## Install
 
@@ -29,7 +40,7 @@ const GGB = require('node-geogebra');
 - constructor **GGBPool**(**options**?: GGBOptions)
   
   Options parameters:
-    - **ggb** (default local): local or remote. Whether to load Geogebra classic app from the local copy or remotely from https://www.geogebra.org/classic 
+    - **ggb** (default local): local or remote. Whether to load Geogebra classic app from the local copy or remotely from https://www.geogebra.org/classic. Please note that "remote" will not work
     - **plotters** (default 3): number of plotters in the pool
   
   Methods:
@@ -51,7 +62,7 @@ await pool.ready();
 
 **GGBPlotter**
 
-- constructor **GGBPlotter**({ggb: "remote or local"})
+- constructor **GGBPlotter**({ggb: "remote or local"}). Please note that "remote" will not work
 - constructor **GGBPlotter**(id?: number, page?: puppeteer.Page, releasedEmitter?: EventEmitter)
   
   Optional parameters:
@@ -115,4 +126,4 @@ node simple.js
 node pooled.js
 ```
 
-Every example generates a number of files which can be opened.
+Every example generates a number of files and images which can be opened and tested.

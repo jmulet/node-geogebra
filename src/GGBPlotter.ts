@@ -6,6 +6,12 @@ import * as path from 'path';
 let window: any;
 const DEBUG = false;
 
+function sleep(ms) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
+}   
+
 export class GGBPlotter {
     releasedEmitter: EventEmitter;
     id: string | number;
@@ -35,10 +41,10 @@ export class GGBPlotter {
             const opts: puppeteer.LaunchOptions = {
                 devtools: false,
                 args: ["--allow-file-access-from-files", "--non-secure",
-                    "--allow-running-insecure-content", "--no-sandbox",
-                    "--no-startup-window"]
+                "--allow-running-insecure-content", "--no-sandbox",
+                "--no-startup-window"] 
             };
-    
+ 
             this.browser = await puppeteer.launch(opts);
             const newPage = await this.browser.newPage();
             let url; 
@@ -48,10 +54,12 @@ export class GGBPlotter {
             } else {
                 url = "https://www.geogebra.org/classic";
             } 
-            await newPage.goto(url);
-            await newPage.waitForFunction("window.ggbApplet!=null");
+            await newPage.goto(url, {waitUntil: 'networkidle2'});  
+            DEBUG && console.log( url + " has been loaded");
+            await newPage.waitForFunction("window.ggbApplet!=null");  
+            DEBUG && console.log( "ggbApplet is ready");
             await newPage.evaluate('window.ggbApplet.evalCommand(\'SetPerspective("G")\\nShowGrid(true)\')');
-            
+            DEBUG && console.log( "SetPerspective->G, showGrid->true");
             return newPage;
         }
     }

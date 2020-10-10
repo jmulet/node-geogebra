@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.QueueTask = void 0;
 class QueueTask {
     constructor(id, cue) {
         this.id = id;
