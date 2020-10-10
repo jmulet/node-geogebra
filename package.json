@@ -1,6 +1,6 @@
 {
   "name": "node-geogebra",
-  "version": "1.0.1",
+  "version": "1.2.0",
   "description": "Generate graphics with geogebra from nodejs",
   "main": "index.js",
   "scripts": {
