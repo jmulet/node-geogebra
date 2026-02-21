@@ -40,7 +40,7 @@ const GGB = require('node-geogebra');
 - constructor **GGBPool**(**options**?: GGBOptions)
   
   Options parameters:
-    - **ggb** (default local): local or remote. Whether to load Geogebra classic app from the local copy or remotely from https://www.geogebra.org/classic.
+    - **ggb** (default local): local or remote. Whether to load Geogebra classic app from the local copy or remotely from https://www.geogebra.org/classic. Note that "remote" will require internet connection.
     - **plotters** (default 3): number of plotters in the pool
     - **perspective** (default "G"): Set the initial GeoGebra perspective (e.g., "G" for Graphing, "3" for 3D Graphics).
   
@@ -84,8 +84,8 @@ await pool.ready();
     - async exportPNG64(alpha: boolean, dpi: number): String
     - async exportPDF(): Buffer
     - async exportPDF64(): String
-    - async exportSVG(): Buffer
-    - async exportSVG64(): String
+    - async exportSVG(): String (raw SVG markup)
+    - async exportSVG64(): String (base64-encoded SVG)
     - async exportGGB(): Buffer
     - async exportGGB64(): String
 
