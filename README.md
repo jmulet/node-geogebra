@@ -24,9 +24,9 @@ It runs [Geogebra Classic App](https://www.geogebra.org/classic) through a headl
 
 ## Build
 
-```
-npm i -g typescript
-tsc
+```bash
+npm install
+npm run build
 ```
 
 ## Classes
@@ -42,6 +42,7 @@ const GGB = require('node-geogebra');
   Options parameters:
     - **ggb** (default local): local or remote. Whether to load Geogebra classic app from the local copy or remotely from https://www.geogebra.org/classic. Please note that "remote" will not work
     - **plotters** (default 3): number of plotters in the pool
+    - **perspective** (default "G"): Set the initial GeoGebra perspective (e.g., "G" for Graphing, "3" for 3D Graphics).
   
   Methods:
 
@@ -118,12 +119,31 @@ Example without using GGBPool
 
 ## Examples
 
-We provide two examples: one using a single GGBPlotter and a second one with a GGBPool.
+We provide several examples:
+- `simple.js`: Single plotter using local GeoGebra.
+- `pooled.js`: Resource pool for parallel processing.
+- `simple3d.js`: Demonstrates 3D Graphics support.
+- `pooled3d.js`: Parallel 3D surface generation.
 
 ```
 cd examples
 node simple.js
 node pooled.js
+node simple3d.js
+node pooled3d.js
 ```
 
-Every example generates a number of files and images which can be opened and tested.
+Every example generates a number of files and images in the examples/output directory which can be opened and tested.
+
+
+# Update local geogebra bundle
+
+1. Download the latest bundle
+curl -L -o new-bundle.zip https://download.geogebra.org/package/geogebra-math-apps-bundle
+2. Back up the old one (just in case)
+mv geogebra-math-apps-bundle geogebra-math-apps-bundle-old
+3. Create fresh directory and unzip
+mkdir geogebra-math-apps-bundle
+unzip new-bundle.zip -d geogebra-math-apps-bundle
+4. Cleanup
+rm new-bundle.zip

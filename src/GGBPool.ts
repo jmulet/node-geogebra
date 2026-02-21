@@ -1,8 +1,17 @@
+/**
+ * node-geogebra
+ * 
+ * Copyright (c) 2026 Josep Mulet
+ * 
+ * This source code is licensed under the ISC license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 import * as puppeteer from 'puppeteer';
 import { EventEmitter } from 'events';
 import { GGBPlotter } from './GGBPlotter';
 import { PriorityQueue } from './PriorityQueue';
-import { GGBOptions } from './GGBOptions'; 
+import { GGBOptions } from './GGBOptions';
 import * as path from 'path';
 
 let window: any;
@@ -20,7 +29,7 @@ export class GGBPool {
     opts: GGBOptions;
 
     constructor(options?: GGBOptions) {
-        this.opts = {ggb: "local", plotters: 3, ...options};
+        this.opts = { ggb: "local", plotters: 3, ...options };
         this.releasedEmitter = new EventEmitter();
         this.priorityCue = new PriorityQueue(this.releasedEmitter)
         // Return released workers to the pool
@@ -28,7 +37,7 @@ export class GGBPool {
             const indx = this.usedWorkers.indexOf(worker);
             this.usedWorkers.splice(indx, 1);
             this.availableWorkers.push(worker);
-        }); 
+        });
     }
 
     async ready(): Promise<GGBPool> {
@@ -39,17 +48,23 @@ export class GGBPool {
         // Wait for browser
         // "--disable-web-security" --> breaks it
         const opts: puppeteer.LaunchOptions = {
-            devtools: false,
-            args: ["--allow-file-access-from-files", "--non-secure",
-                "--allow-running-insecure-content", "--no-sandbox",
-                "--no-startup-window"]
+            headless: true,
+            args: [
+                "--allow-file-access-from-files",
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--enable-webgl",
+                "--ignore-gpu-blacklist",
+                "--use-gl=angle",
+                "--use-angle=metal"
+            ]
         };
 
         this.browser = await puppeteer.launch(opts);
 
         const promises = new Array<Promise<puppeteer.BrowserContext>>(this.opts.plotters);
         for (var i = 0; i < this.opts.plotters; i++) {
-            promises[i] = this.browser.createIncognitoBrowserContext();
+            promises[i] = this.browser.createBrowserContext();
         }
         const browserContexts = await Promise.all(promises);
         DEBUG && console.log("browsers created");
@@ -64,34 +79,50 @@ export class GGBPool {
         DEBUG && console.log("pages have been created");
 
         // Load empty geogebra templates
-        let url; 
-        if( this.opts.ggb==="local") { 
-            const dir = path.resolve(__dirname, "../geogebra-math-apps-bundle/Geogebra/HTML5/5.0/GeoGebra.html");
+        let url;
+        if (this.opts.ggb === "local") {
+            const dir = path.resolve(__dirname, "../geogebra-math-apps-bundle/GeoGebra/HTML5/5.0/GeoGebra.html");
             url = "file://" + dir;
         } else {
             url = "https://www.geogebra.org/classic";
-        } 
+        }
         let promises3 = new Array(this.opts.plotters);
         for (var i = 0; i < this.opts.plotters; i++) {
-            promises3[i] = this.availablePages[i].goto(url, {waitUntil: 'networkidle2'});
+            DEBUG && console.log(`Worker ${i} navigating to ${url}`);
+            promises3[i] = this.availablePages[i].goto(url, { waitUntil: 'domcontentloaded' });
         }
         await Promise.all(promises3);
-        DEBUG && console.log("https://www.geogebra.org/classic have loaded in all pages");
+        DEBUG && console.log("All pages have loaded");
 
         // Wait for ... ggbApplet injected    
         promises3 = new Array(this.opts.plotters);
+        let perspective = this.opts.perspective || "G";
+        if (perspective === "3" || perspective === "3D") perspective = "T";
+
         for (var i = 0; i < this.opts.plotters; i++) {
-            promises3[i] = this.availablePages[i].waitForFunction("window.ggbApplet!=null");
+            DEBUG && console.log(`Worker ${i} waiting for window.ggbApplet to be fully functional...`);
+            promises3[i] = this.availablePages[i].waitForFunction((p) => {
+                try {
+                    if (window.ggbApplet && typeof window.ggbApplet.evalCommand === 'function') {
+                        window.ggbApplet.evalCommand(`SetPerspective("${p}")\nShowGrid(true)`);
+                        if (p === "T" || p === "D" || p === "5") {
+                            const xml = window.ggbApplet.getPerspectiveXML();
+                            return xml.includes('id="512"');
+                        }
+                        return true;
+                    }
+                } catch (e) {
+                    // Scripting commands not loaded yet or other error
+                }
+                return false;
+            }, { timeout: 60000 }, perspective);
         }
         await Promise.all(promises3);
-        DEBUG && console.log("ggbApplet is ready in all pages");
 
-
-        promises3 = new Array(this.opts.plotters);
-        for (var i = 0; i < this.opts.plotters; i++) {
-            promises3[i] = this.availablePages[i].evaluate('window.ggbApplet.evalCommand(\'SetPerspective("G")\\nShowGrid(true)\')');
+        if (perspective === "T" || perspective === "D" || perspective === "5") {
+            await new Promise(r => setTimeout(r, 2000));
         }
-        await Promise.all(promises3);
+        DEBUG && console.log(`ggbApplet is fully ready in all pages with perspective ${perspective}`);
         DEBUG && console.log("All pages have been initialized");
 
         this.availableWorkers = this.availablePages.map((p, i) => new GGBPlotter(i + 1, p, this.releasedEmitter));

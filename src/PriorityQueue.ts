@@ -1,4 +1,13 @@
-import { QueueTask } from "./QueueTak";
+/**
+ * node-geogebra
+ * 
+ * Copyright (c) 2026 Josep Mulet
+ * 
+ * This source code is licensed under the ISC license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+import { QueueTask } from "./QueueTask";
 import { EventEmitter } from "events";
 import { GGBPlotter } from "./GGBPlotter";
 

@@ -1,0 +1,43 @@
+# node-geogebra Upgrade Notes - v1.3.0
+
+## Summary
+Refreshed the project to support modern Node.js environments (v20+) and updated all core dependencies to their latest stable versions. Improved reliability of local GeoGebra loading and modernized the build system.
+
+## Key Changes
+
+### 1. Dependencies & Compatibility
+- **Node.js**: Added explicit support for Node.js >= 18.0.0 (tested on v20.11.0).
+- **Puppeteer**: Updated to ^24.0.0.
+  - Modernized launch options (`headless: true`).
+  - Switched to `createBrowserContext()` (replacing deprecated incognito method).
+- **TypeScript**: Updated to ^5.0.0.
+  - Updated target to **ES2022** for better performance on modern Node.js.
+  - Added `dom` library to `tsconfig.json` to fix Puppeteer type conflicts.
+  - Enabled `esModuleInterop` for better module compatibility.
+- ** GeoGebra Math Apps**: Updated to the latest version (5.4.916.2).
+
+### 2. Core Fixes & Improvements
+- **Local Loading**: Changed `waitUntil` condition from `networkidle2` to `domcontentloaded`. This significantly improves reliability when loading the local GeoGebra bundle from `file://` URLs.
+- **Improved Wait Logic**: Strengthened the applet readiness check to wait until `window.ggbApplet.evalCommand` is not only present but also functional (by attempting a dummy command and catching initialization errors).
+- **Modernized Exports**: Updated `exportPDF` and `exportSVG` to support the asynchronous callback-based API introduced in GeoGebra 5.4+.
+- **PNG Fix**: Fixed `getPNGBase64` arguments to prevent internal GWT errors when using high DPI/scale factors.
+- **3D Support**: Added full support for 3D Graphics. You can now use 3D commands and initialize the plotter in 3D mode.
+- **New Option**: Added `perspective` to `GGBOptions` to set the initial view (e.g., "3" for 3D).
+- **Entry Point**: Created `src/index.ts` to provide a clean TypeScript entry point for the library.
+- **PriorityQueue Fix**: Resolved a critical typo in `PriorityQueue.ts` where it was attempting to import from a non-existent `QueueTak.ts`.
+- **Cleanup**: Removed unused `sleep` utility function from `GGBPlotter.ts`.
+
+### 3. Legal & Distribution
+- **Copyrights**: Added formal copyright headers with Josep Mulet's name and ISC license info to all source files in `src/`.
+- **License**: Created a root `LICENSE` file (ISC).
+- **Package Audit**: Optimized `package.json` with `files`, `types`, and `engines` fields for better NPM distribution.
+
+### 4. Examples Refresher
+- **Automatic Output Directory**: Examples now automatically create the `examples/output/` directory if it doesn't exist.
+- **Absolute Paths**: Switched to `path.join(__dirname, ...)` for saving exported files, ensuring they work regardless of where the script is executed from.
+- **Modernized scripts**: Updated examples to use the new `dist/` build artifacts correctly.
+
+### 5. Documentation
+- **README.md**: 
+  - Updated Build instructions to use `npm run build`.
+  - Added a new section with instructions on how to manually update the local GeoGebra Math Apps Bundle to the latest version.

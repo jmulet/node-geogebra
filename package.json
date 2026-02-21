@@ -1,10 +1,19 @@
 {
   "name": "node-geogebra",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Generate graphics with geogebra from nodejs",
   "main": "index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "index.js",
+    "geogebra-math-apps-bundle"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "watch": "tsc -w"
   },
   "repository": {
     "type": "git",
@@ -16,17 +25,21 @@
     "chromium",
     "headless"
   ],
-  "author": "Josep Mulet",
+  "author": "Josep Mulet Pol",
+  "email": "pep.mulet@gmail.com",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/jmulet/node-geogebra/issues"
   },
   "homepage": "https://github.com/jmulet/node-geogebra#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
-    "puppeteer": "^5.3.1"
+    "puppeteer": "^24.37.5"
   },
   "devDependencies": {
-    "@types/node": "^10.9.4",
-    "@types/puppeteer": "^3.0.2"
+    "@types/node": "^25.3.0",
+    "typescript": "^5.9.3"
   }
 }

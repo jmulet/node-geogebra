@@ -1,30 +1,29 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
+/**
+ * node-geogebra
+ *
+ * Copyright (c) 2026 Josep Mulet
+ *
+ * This source code is licensed under the ISC license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PriorityQueue = void 0;
-const QueueTak_1 = require("./QueueTak");
+const QueueTask_1 = require("./QueueTask");
 class PriorityQueue {
+    releasedEmitter;
+    static counter = 0;
+    tasks;
     constructor(releasedEmitter) {
         this.releasedEmitter = releasedEmitter;
         this.tasks = [];
     }
-    wait() {
-        return __awaiter(this, void 0, void 0, function* () {
-            PriorityQueue.counter += 1;
-            const cueTask = new QueueTak_1.QueueTask(PriorityQueue.counter, this);
-            this.tasks.push(cueTask);
-            return cueTask.subscribe();
-        });
+    async wait() {
+        PriorityQueue.counter += 1;
+        const cueTask = new QueueTask_1.QueueTask(PriorityQueue.counter, this);
+        this.tasks.push(cueTask);
+        return cueTask.subscribe();
     }
 }
 exports.PriorityQueue = PriorityQueue;
-PriorityQueue.counter = 0;
 //# sourceMappingURL=PriorityQueue.js.map
