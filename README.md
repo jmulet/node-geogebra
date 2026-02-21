@@ -2,11 +2,6 @@
 
 Run a [geogebra](https://www.geogebra.org) script from nodejs and export your work to the desired format: _pdf, svg, png_ and _ggb_.
 
-## IMPORTANT NOTICE
-
-Due to a change in the API of https://www.geogebra.org/classic, only the ggb: "local" option passed to GGBPlotter({ggb: "local"}) works.
-
-
 ## Under the hood
 
 It runs [Geogebra Classic App](https://www.geogebra.org/classic) through a headless chromium browser using the [puppeteer](https://github.com/GoogleChrome/puppeteer) package. This package provides an interface to programmatically utilize Geogebra classic app from nodejs.

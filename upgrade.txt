@@ -1,4 +1,4 @@
-# node-geogebra Upgrade Notes - v1.3.0
+# node-geogebra Upgrade Notes - v1.3.2
 
 ## Summary
 Refreshed the project to support modern Node.js environments (v20+) and updated all core dependencies to their latest stable versions. Improved reliability of local GeoGebra loading and modernized the build system.
